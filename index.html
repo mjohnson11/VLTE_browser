@@ -1,0 +1,58 @@
+<html>
+
+<head>
+<link rel='stylesheet' href='css/VLTE_plotter.css' />
+
+<title>VLTE BROWSER</title>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="https://www.google.com/jsapi"></script>
+<script src="d3/d3.min.js"></script>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="js/VLTE_plotter.js"></script>
+    
+</head>
+
+<body onload="load_fitness_data()" >
+    <h1 id="page_title">VLTE BROWSER</h1>
+    <div class="line_divider_2"></div><br /><br />
+    <div id="main_div">
+      <img id="facs_img" onclick="d3.select(this).style('display', 'none')">
+      <div id='pop_stuff'>
+        <div id="pop_info">
+          <h2 id="well_name">Well:</h2>
+          <p id="more_info"></p>
+          <p id="see_facs_data" onclick="d3.select('#facs_img').style('display', 'block')"></p>
+        </div>
+        <div id="searches_etc">
+          <input type="checkbox" id="show_focal_pops" name="show_focal_pops" value="show" onchange="change_show_focals()">
+          <label for="show_focal_pops">Show only focal populations</label><br>
+          <button type="button" class="my_button" onclick="new_file(-1)">Prev</button>
+          <button type="button" class="my_button" onclick="new_file(1)">Next</button>
+          <input type="checkbox" id="hide_s_muts" name="hide_s_muts" value="hide" onchange="change_hide_syn()">
+          <label for="hide_s_muts">Hide synonymous and intergenic mutations</label><br>
+          <input type="text" id="cat_search1" onkeyup="lookup_highlight()" placeholder="Search for gene name or mutation type">
+          <input type="text" id="cat_search2" onkeyup="lookup_highlight()" placeholder="Search for gene name or mutation type">
+        </div>
+      </div>
+      <div id="fitness_svg_div"><svg id="fitness_svg"></svg></div>
+      <div id="wgs_svg_div">
+        <svg id="wgs_svg"></svg>
+        <div id='mut_stuff'>
+          <h2 id="mut_gene"></h2>
+          <p id="mut_ann"></p>
+        </div>
+      </div>
+      <img id="microscopy_img">
+    </div>
+
+</body>
+    
+</html>
+
+
+
+
+
+
+
