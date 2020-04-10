@@ -308,12 +308,12 @@ function make_allele_freq_graph() {
 }
 
 function read_wgs_data(well) {
-  d3.selectAll(".wgs_data_svg").remove();
   file_name = well + ".tsv";
   d3.tsv("Allele_freqs/" + file_name)
     .then(function(data_in) {
       dat = data_in;
       //console.log(dat.length);
+      d3.selectAll(".wgs_data_svg").remove();
       make_allele_freq_graph();
     })
     .catch(function(error) {
