@@ -17,34 +17,61 @@
     <h1 id="page_title">VLTE BROWSER</h1>
     <div class="line_divider_2"></div><br /><br />
     <div id="main_div">
-      <img id="facs_img" onclick="d3.select(this).style('display', 'none')">
       <div id='pop_stuff'>
         <div id="pop_info">
-          <h2 id="well_name">Well:</h2>
-          <p id="more_info"></p>
-          <p id="see_facs_data" onclick="d3.select('#facs_img').style('display', 'block')"></p>
+          <p id="well_name_etc" class="well_info">Well:</p>
         </div>
         <div id="searches_etc">
-          <input type="checkbox" id="show_focal_pops" name="show_focal_pops" value="show" onchange="change_show_focals()">
-          <label for="show_focal_pops">Show only focal populations</label><br>
           <button type="button" class="my_button" onclick="new_file(-1)">Prev</button>
           <button type="button" class="my_button" onclick="new_file(1)">Next</button>
-          <input type="checkbox" id="hide_s_muts" name="hide_s_muts" value="hide" onchange="change_hide_syn()">
-          <label for="hide_s_muts">Hide synonymous and intergenic mutations</label><br>
+          <input type="checkbox" id="show_focal_pops" name="show_focal_pops" value="show" onchange="change_show_focals()" checked>
+          <label for="show_focal_pops">Show only focal populations</label>
+          <input type="checkbox" id="hide_s_muts" name="hide_s_muts" value="hide" onchange="change_hide_syn()" checked>
+          <label for="hide_s_muts">Hide synon. + intergenic</label>
           <input type="text" id="cat_search1" onkeyup="lookup_highlight()" placeholder="Search for gene name or mutation type">
           <input type="text" id="cat_search2" onkeyup="lookup_highlight()" placeholder="Search for gene name or mutation type">
         </div>
       </div>
-      <div id="fitness_svg_div"><svg id="fitness_svg"></svg></div>
-      <div id="wgs_svg_div">
-        <svg id="wgs_svg"></svg>
-        <div id='mut_stuff'>
-          <h2 id="mut_gene"></h2>
-          <p id="mut_ann"></p>
+      <div id="data_div">
+        <div id="fitness_svg_div"><svg id="fitness_svg" class="data_svg"></svg></div>
+        <div id="wgs_svg_div">
+          <svg id="wgs_svg" class="data_svg"></svg>
+          <div id='mut_stuff'>
+            <h2 id="mut_gene"></h2>
+            <p id="mut_ann"></p>
+          </div>
+        </div>
+        <div id='overlay_button_div'>
+          <div class='overlay_button', onclick="show_overlay('facs')">FACS</div>
+          <div class='overlay_button', onclick="show_overlay('depth')">DEPTH</div>
+          <div class='overlay_button', onclick="show_overlay('microscopy')">MICROSCOPY</div>
+        </div>
+        
+        <div id="facs_div" class="data_overlay">
+          <div class="escape_data_overlay" onclick="show_overlay('none')">X</div>
+          <img class="facs_img" id="facs_img1">
+          <img class="facs_img" id="facs_img2">
+          <img class="facs_img" id="facs_img3">
+          <img class="facs_img" id="facs_img4">
+        </div>
+        <div id="depth_div" class="data_overlay">
+          <div class="escape_data_overlay" onclick="show_overlay('none')">X</div>
+          <img id="depth_img1">
+          <img id="depth_img2">
+          <div class="depth_overlay" onmouseover="show_coverage(0)"></div>
+          <div class="depth_overlay" onmouseover="show_coverage(1)"></div>
+          <div class="depth_overlay" onmouseover="show_coverage(2)"></div>
+          <div class="depth_overlay" onmouseover="show_coverage(3)"></div>
+          <div class="depth_overlay" onmouseover="show_coverage(4)"></div>
+          <div class="depth_overlay" onmouseover="show_coverage(5)"></div>
+        </div>
+        <div id="microscopy_div" class="data_overlay">
+          <div class="escape_data_overlay" onclick="show_overlay('none')">X</div>
+          <img id="microscopy_img" onclick="change_micro_type()">
         </div>
       </div>
-      <img id="microscopy_img">
     </div>
+<!---->
 
 </body>
     

@@ -6,6 +6,10 @@ var hover_color = 'red';
 var pdata; //fitness data
 var plates = ['P1', 'P2', 'P3'];
 
+var current_platewell;
+
+var micro_type = 'cropped';
+
 var fgens = [70, 550, 1410, 2640, 3630, 5150, 7530, 10150];
 var sgens = [70, 1410, 2640, 5150, 7530, 10150];
 var s_type = '_s_zeroed';
@@ -20,12 +24,23 @@ var clicked = false;
 num_to_let = {1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G', 8: 'H', 
               9: 'I', 10: 'J', 11: 'K', 12: 'L', 13: 'M', 14: 'N', 15: 'O', 16: 'P'}
 
-var gens_x = {'P1': d3.scaleLinear().range([70, 270]).domain([0, 10000]),
-              'P2': d3.scaleLinear().range([340, 540]).domain([0, 10000]),
-              'P3': d3.scaleLinear().range([610, 810]).domain([0, 10000])};
-var s_y = {'P1': d3.scaleLinear().range([250, 40]).domain(s_domain),
-            'P2': d3.scaleLinear().range([250, 40]).domain(s_domain),
-            'P3': d3.scaleLinear().range([250, 40]).domain(s_domain)};
+//layout
+var fitness_w = 650;
+var fitness_left_break = 60;
+var fitness_onegraph_w = (fitness_w - 3*fitness_left_break)/3;
+var fitness_h = 250;
+var fitness_h_buf = 40;
+var wgs_w = 550;
+var wgs_h = 250;
+var wgs_left_break = 40;
+var wgs_top_bottom_buf = 40;
+
+var gens_x = {'P1': d3.scaleLinear().range([fitness_left_break, fitness_left_break+fitness_onegraph_w]).domain([0, 10000]),
+              'P2': d3.scaleLinear().range([fitness_left_break*2+fitness_onegraph_w, fitness_left_break*2+fitness_onegraph_w*2]).domain([0, 10000]),
+              'P3': d3.scaleLinear().range([fitness_left_break*3+fitness_onegraph_w*2, fitness_left_break*3+fitness_onegraph_w*3]).domain([0, 10000])};
+var s_y = {'P1': d3.scaleLinear().range([fitness_h-fitness_h_buf, fitness_h_buf]).domain(s_domain),
+            'P2': d3.scaleLinear().range([fitness_h-fitness_h_buf, fitness_h_buf]).domain(s_domain),
+            'P3': d3.scaleLinear().range([fitness_h-fitness_h_buf, fitness_h_buf]).domain(s_domain)};
 
 var s_trajectory = {'P1': d3.line().x(function(d) { return gens_x['P1'](d.x); }).y(function(d) { return s_y['P1'](d.y); }),
                     'P2': d3.line().x(function(d) { return gens_x['P2'](d.x); }).y(function(d) { return s_y['P2'](d.y); }),
@@ -37,13 +52,9 @@ var fitness_svg_obj;
 
 var wgs_svg_obj;
 
-var time_x = d3.scaleLinear()
-.range([70, 800])
-.domain([0,10000]);
+var time_x = d3.scaleLinear().range([wgs_left_break, wgs_w-wgs_left_break]).domain([0,10000]);
 
-var freq_ax = d3.scaleLinear()
-.range([310, 50])
-.domain([0, 1]);
+var freq_ax = d3.scaleLinear().range([wgs_h-wgs_top_bottom_buf, wgs_top_bottom_buf]).domain([0, 1]);
 
 var freq_traj = d3.line()
 .x(function(d) { return time_x(d.x); })
@@ -111,20 +122,38 @@ function get_well_row(platewell) {
   }
 }
 
+function show_coverage(i) {
+  console.log(i);
+  d3.select('#depth_img2').attr("src", "coverage/G" + String(sgens[i]) + "_" + current_platewell + '_depth.png');
+}
+
 function highlight_well(platewell, tmp_info) {
-  d3.select("#well_name").html('Well: ' + platewell + ', ' + tmp_info['strain']);
-  d3.select("#more_info").html('ploidy: ' + tmp_info['ploidy']);
-  d3.select('#facs_img').attr("src", "FACS_graphs/" + platewell.slice(0,2) + '_' + platewell.slice(2,platewell.length) + '.png');
+  current_platewell = platewell;
+  d3.select("#well_name_etc").html('Well: ' + platewell + ', ' + tmp_info['strain'] + '  ploidy: ' + tmp_info['ploidy']);
+  d3.selectAll('.facs_img').attr("src", "FACS_graphs/" + platewell.slice(0,2) + '_' + platewell.slice(2,platewell.length) + '.png');
+  d3.select('#depth_img1').attr("src", "coverage/" + platewell + '_allgens_depth.png');
+  d3.select('#depth_img2').attr("src", "coverage/G10150_" + platewell + '_depth.png');
   d3.select("#see_facs_data").html('see FACS data (click it to close it)');
+  d3.select("#see_depth_data").html('see depth data');
   d3.selectAll('.s_traj').attr('class', 's_traj');
   d3.selectAll('.s_traj')
     .filter(function(d) { return d['platewell']==platewell; })
     .attr('class', 's_traj highlighted_traj').moveToFront();
   if (wells.indexOf(platewell) > -1) {
-    d3.select('#microscopy_img').attr('src', 'Timecourse_images/cropped_' + platewell.slice(0,2) + '_' + platewell.slice(2,platewell.length) + '.png');
+    d3.select('#microscopy_img').attr('src', 'Timecourse_images/' + micro_type + '_' + platewell.slice(0,2) + '_' + platewell.slice(2,platewell.length) + '.png');
   } else {
     d3.select('#microscopy_img').attr('src', 'no_microscopy.png');
   }
+}
+
+function change_micro_type() {
+  if (micro_type == 'cropped') {
+    micro_type = 'fuller';
+  } else {
+    micro_type = 'cropped';
+  }
+  console.log(micro_type);
+  d3.select('#microscopy_img').attr('src', 'Timecourse_images/' + micro_type + '_' + current_platewell.slice(0,2) + '_' + current_platewell.slice(2,current_platewell.length) + '.png');
 }
 
 function clicked_s(d) {
@@ -132,7 +161,6 @@ function clicked_s(d) {
   highlight_well(d['platewell'], d);
   //display wgs data
   if (wells.indexOf(d['platewell']) > -1) {
-    console.log('here');
     file_num = wells.indexOf(d['platewell']);
     read_wgs_data(d['platewell'])
   }
@@ -177,7 +205,7 @@ function make_fitness_graphs() {
       .on('click', function(d) { 
         clicked_s(d); 
       } );
-  filter_fitness();
+  change_show_focals();
 }
 
 function load_fitness_data() {
@@ -191,16 +219,25 @@ function load_fitness_data() {
     });
 }
 
+//DATA OVERLAYS
+function show_overlay(which_one) {
+  d3.selectAll('.data_overlay')
+    .style('display', function() {
+      console.log(which_one, d3.select(this).attr('id'), (d3.select(this).attr('id')==which_one+'_div') ? 'block' : 'none')
+      return (d3.select(this).attr('id')==which_one+'_div') ? 'block' : 'none';
+  })
+}
+
 //MUTATION INFO DISPLAY STUFF
 function highlight(lin) {
   d3.select("#mut_gene").html(function() { if (lin["ANN"].split(';')[0].split('|')[4] == null) { return "NA"; } else { return lin["ANN"].split(';')[0].split('|')[4]; } } );
   wgs_svg_obj.selectAll('.allele_count_text')
     .text(function(d) { return lin["G"+String(d)+'_allele_counts']; })
-  d3.select("#mut_ann").html(lin["CHROM"] + " " + lin["POS"] + " " +lin["REF"] + ' -> ' + lin["ALT"] + " " + lin["ANN"] + " Percentage of alt counts:" + lin['perc_of_alt']);
+  d3.select("#mut_ann").html(lin["info"] + "<br /><br />Percentage of alt counts:" + lin['perc_of_alt']);
 }
 
 function filter_wgs() {
-  wgs_svg_obj.selectAll("path")
+  wgs_svg_obj.selectAll(".allele_path")
     .style('display', function(d) {
       for (var key in wgs_filters) {
         var filt = wgs_filters[key];
@@ -237,8 +274,8 @@ function lookup_highlight() {
   }
   search_for1 = RegExp(search_for1);
   search_for2 = RegExp(search_for2);
-  wgs_filters['search_block1'] = ['ANN', [search_for1], how1];
-  wgs_filters['search_block2'] = ['ANN', [search_for2], how2];
+  wgs_filters['search_block1'] = ['info', [search_for1], how1];
+  wgs_filters['search_block2'] = ['info', [search_for2], how2];
   fit_filters['search_block1'] = ['genes_w_muts_fixed', [search_for1], how1];
   fit_filters['search_block2'] = ['genes_w_muts_fixed', [search_for2], how2];
   filter_fitness();
@@ -247,7 +284,7 @@ function lookup_highlight() {
 
 function change_hide_syn() {
   if (d3.select("#hide_s_muts").property('checked')) {
-    wgs_filters['hide_s'] = ['ANN', coding_changes];
+    wgs_filters['hide_s'] = ['ANN', coding_changes, 'look'];
   } else {
     wgs_filters['hide_s'] = ['no filter'];
   }
@@ -255,56 +292,51 @@ function change_hide_syn() {
 }
 
 function make_allele_freq_graph() {
-    wgs_svg_obj = d3.select("#wgs_svg")
-        .append("svg")
-            .attr("class", "wgs_data_svg");
+  wgs_svg_obj = d3.select("#wgs_svg")
+    .append("svg")
+        .attr("class", "wgs_data_svg");
 
-    wgs_svg_obj.selectAll("path")
-      .data(dat)
-        .enter()
-        .append("path")
-          .attr("class", "allele_path")
-          .on("mouseover", function(d) { 
-              d3.select(this).attr('stroke', 'red');
-              highlight(d); 
-          })
-          .on("mouseout", function(d) { 
-              d3.select(this).attr('stroke', '#333');
-          })
-          .on("click", function(d) { console.log(d); })
-          .attr("fill", "none")
-          .attr("stroke", "#333")
-          .attr('d', function(d) {
-            var traj_d = [];
-            var bits = d['af_trajectory'].split(';');
-            for (let i=0; i<bits.length; i++) {
-              traj_d.push({'x': parseInt(bits[i].split('_')[0]), 'y': parseFloat(bits[i].split('_')[1])})
-            }
-            return freq_traj(traj_d); 
-          });
+  wgs_svg_obj.selectAll("path")
+    .data(dat)
+      .enter()
+      .append("path")
+        .attr("class", "allele_path")
+        .on("mouseover", function(d) { 
+            highlight(d); 
+        })
+        .on("click", function(d) { console.log(d); })
+        .attr("stroke", "#333")
+        .attr('d', function(d) {
+          var traj_d = [];
+          var bits = d['af_trajectory'].split(';');
+          for (let i=0; i<bits.length; i++) {
+            traj_d.push({'x': parseInt(bits[i].split('_')[0]), 'y': parseFloat(bits[i].split('_')[1])})
+          }
+          return freq_traj(traj_d); 
+        });
 
-    wgs_svg_obj.append("g")
-      .attr("class", "axis")
-      .attr("transform", "translate(" + time_x(0) + ", 0)")
-      .call(d3.axisLeft(freq_ax));
-    wgs_svg_obj.append("g")
-      .attr("class", "axis")
-      .attr("transform", "translate(0," + freq_ax(0) + ")")
-      .call(d3.axisBottom(time_x));
+  wgs_svg_obj.append("g")
+    .attr("class", "axis")
+    .attr("transform", "translate(" + time_x(0) + ", 0)")
+    .call(d3.axisLeft(freq_ax));
+  wgs_svg_obj.append("g")
+    .attr("class", "axis")
+    .attr("transform", "translate(0," + freq_ax(0) + ")")
+    .call(d3.axisBottom(time_x));
 
-    wgs_svg_obj.selectAll('.allele_count_text')
-      .data(sgens)
-        .enter()
-        .append('text')
-          .attr('class', 'allele_count_text')
-          .attr('id', function(d) { return 'allele_count_' + String(d); })
-          .attr('text-anchor', 'middle')
-          .attr('x', function(d) { return time_x(d); })
-          .attr('y', function(d) { return freq_ax(1.1); })
-          .text(function(d) { return String(d); })
-  
-    lookup_highlight();
-    filter_wgs();
+  wgs_svg_obj.selectAll('.allele_count_text')
+    .data(sgens)
+      .enter()
+      .append('text')
+        .attr('class', 'allele_count_text')
+        .attr('id', function(d) { return 'allele_count_' + String(d); })
+        .attr('text-anchor', 'middle')
+        .attr('x', function(d) { return time_x(d); })
+        .attr('y', function(d) { return freq_ax(1.1); })
+        .text(function(d) { return String(d); })
+    
+  lookup_highlight();
+  change_hide_syn();
 }
 
 function read_wgs_data(well) {
@@ -332,4 +364,3 @@ function new_file(increment) {
   read_wgs_data(wells[file_num]);
   highlight_well(wells[file_num], get_well_row(wells[file_num]));
 }
-

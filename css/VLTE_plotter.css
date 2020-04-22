@@ -2,40 +2,259 @@
 /* CSS Document */ 
 /*root stylesheet*/
 
+/*GENERAL*/
 body {
-	background-color: #FFFBF7;
-	cursor:default;
-	font-family:"Palatino Linotype", Fallback, serif;
-    margin: 0;
-}
-
-select {
-    border: none;
-    border-radius: 4px;
-    background-color: #f1f1f1;
-}
-
-#main_div {
-    position: relative;
-    margin: 0px auto;
-    width:1500px;
-    background-color: blue;
+  background-color: #FFFBF7;
+  cursor:default;
+  font-family:"Palatino Linotype", Fallback, serif;
+  margin: 0;
 }
 
 #page_title {
-    text-align: center;
+  text-align: center;
 }
 
+/*MAIN LAYOUT*/
+#main_div {
+  position: relative;
+  margin: 0px auto;
+  width:1500px;
+  background-color: blue;
+}
+
+#data_div {
+  position: absolute;
+  top:50px;
+  left:0px;
+  width:100%;
+  height: 1000px;
+}
+
+#fitness_svg_div {
+  position: absolute;
+  top: 0px;
+  left:0px;
+  height: 200px;
+  width: 650px;
+}
+#fitness_svg {
+  position: absolute;
+  top: 0px;
+  left:0px;
+  height: 250px;
+  width: 650px;
+}
+
+#wgs_svg_div {
+  position: absolute;
+  top: 0px;
+  left: 680px;
+  height: 250px;
+  width: 820px;
+}
+
+#wgs_svg {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  height: 250px;
+  width: 550px;
+}
+
+#mut_stuff {
+  position: absolute;
+  top:0px;
+  left:550px;
+  height: 250px;
+  width: 270px;
+  padding-left:10px;
+}
+
+#pop_stuff {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 1500px;
+  height: 50px;
+}
+
+#pop_info {
+  position: absolute;
+  top: 0px;
+  left: 100px;
+  height: 50px;
+  width: 400px;
+  padding-left:10px;
+}
+
+#well_name_etc {
+  margin:0px;
+  font-size:1.4em;
+}
+.see_data {
+  color:blue;
+}
+
+.see_data:hover {
+  opacity:0.6;
+}
+
+#searches_etc {
+  position: absolute;
+  top: 0px;
+  left: 500px;
+  height: 50px;
+  width: 1000px;
+}
+
+#overlay_button_div {
+  position:absolute;
+  top:260px;
+  left:100px;
+  width:1300px;
+  height:30px;
+}
+
+.overlay_button {
+  width: 110px;
+  height: 25px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  font-size:14px;
+  background-color: #DDD;   
+  margin-top:5px;
+  margin-right:20px;
+  text-align: center;
+  float:left;
+  padding-top:4px;
+}
+.overlay_button:hover {
+  opacity:0.8;
+}
+
+/*data overlays*/
+.data_overlay {
+  position: absolute;
+  left:85px;
+  top:310px;
+  width:1330px;
+  z-index: 1;
+  padding:12px;
+  display:none;
+}
+
+.escape_data_overlay {
+  position: absolute;
+  left:0px;
+  top:0px;
+  font-size:15px;
+  font-family:monospace;
+  text-align:center;
+  width:13px;
+  height:15px;
+  border: 1px solid black;
+}
+
+.escape_data_overlay:hover {
+  opacity:0.5;
+}
+
+#facs_div {
+  background-color: white;
+  height:700px;
+}
+
+#facs_img1 {
+  position: absolute;
+  top:0px;
+  left:28px;
+  width: 600px; 
+  height: 90px;
+  object-fit: cover;
+  object-position: 0px 0px; 
+}
+#facs_img2 {
+  position: absolute;
+  top:90px;
+  left:28px;
+  width: 600px; 
+  height: 240px;
+  object-fit: cover;
+  object-position: 0px -145px; 
+}
+#facs_img1 {
+  position: absolute;
+  top:0px;
+  left:28px;
+  width: 600px; 
+  height: 90px;
+  object-fit: cover;
+  object-position: 0px 0px; 
+}
+#facs_img3 {
+  position: absolute;
+  top:25px;
+  left:650px;
+  width: 600px; 
+  height: 60px;
+  object-fit: cover;
+  object-position: 0px -85px; 
+}
+#facs_img4 {
+  position: absolute;
+  top:93px;
+  left:650px;
+  width: 600px; 
+  height: 240px;
+  object-fit: cover;
+  object-position: 0px -385px; 
+}
+
+.depth_overlay {
+  position: relative;
+  left:28px;
+  width: 1280px;
+  height: 62px;
+  background-color: brown;
+  opacity: 0;
+  margin-bottom:1px;
+}
+.depth_overlay:hover {
+  opacity: 0.3;
+}
+
+#depth_img1 {
+  position: absolute;
+  left: 15px;
+  top: 0px;
+  height: 400px;
+}
+
+#depth_img2 {
+  position: absolute;
+  left: 15px;
+  top: 400px;
+  height: 400px;
+}
+
+#microscopy_img {
+  position: absolute;
+  top: 0px;
+  left: 30px;
+  height:400px;
+}
+
+/*GRAPH STUFF*/
 .axis path,
 .axis line {
-    fill: none;
-    stroke: black;
-    stroke-width: 1px;
+  fill: none;
+  stroke: black;
+  stroke-width: 1px;
 }
 
 .axis text {
-    font-family: sans-serif;
-    font-size: 11px;
+  font-family: sans-serif;
+  font-size: 11px;
 }
 
 .allele_path {
@@ -50,144 +269,68 @@ select {
   stroke-width: 5;
 }
 
+/*FORMS*/
 input[type=text] {
-    width: 300px;
-    height: 35px;
-    box-sizing: border-box;
-    border: 2px solid #ccc;
-    border-radius: 4px;
-    font-size:18px;
+  width: 300px;
+  height: 35px;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  font-size:18px;
 }
 
-#fitness_svg_div {
-    position: absolute;
-    top: 0px;
-    left:0px;
-    height: 300px;
-    width: 850px;
+select {
+  border: none;
+  border-radius: 4px;
+  background-color: #f1f1f1;
 }
-#fitness_svg {
-    position: absolute;
-    top: 0px;
-    left:0px;
-    height: 300px;
-    width: 850px;
-}
-
-#wgs_svg_div {
-    position: absolute;
-    top: 310px;
-    left:0px;
-    height: 450px;
-    width: 850px;
-}
-
-#wgs_svg {
-    position: absolute;
-    top: 0px;
-    left:0px;
-    height: 350px;
-    width: 850px;
-}
-
-#mut_stuff {
-    position: absolute;
-    top:350px;
-    left:0px;
-    height: 150px;
-    width: 850px;
-    padding-left:10px;
-}
-
-
-#microscopy_img {
-    position: absolute;
-    top: 350px;
-    left: 900px;
-    height: 320px;
-    width: 600px;
-    background-color:#BCD;
-}
-
-#pop_stuff {
-    position: absolute;
-    top: 0px;
-    left: 900px;
-    width: 600px;
-    height: 300px;
-}
-
-#pop_info {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    height: 200px;
-    width: 600px;
-    overflow-y: scroll;
-    padding:10px;
-}
-
-#see_facs_data {
-    color:blue;
-}
-
-#see_facs_data:hover {
-    opacity:0.6;
-}
-
-#searches_etc {
-    position: absolute;
-    top: 200px;
-    left: 0px;
-    height: 100px;
-    width: 600px;
-}
-
 
 input[type=text] {
-    width: 230px;
-    height: 25px;
-    box-sizing: border-box;
-    border: 2px solid #ccc;
-    border-radius: 4px;
-    font-size:12px;
+  width: 230px;
+  height: 25px;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  font-size:12px;
 }
 
 .my_button {
-    width: 45px;
-    height: 25px;
-    box-sizing: border-box;
-    border-radius: 4px;
-    font-size:12px;
-    background-color: #DDD;   
-    margin:2px;
+  width: 45px;
+  height: 25px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  font-size:12px;
+  background-color: #DDD;   
+  margin:2px;
 }
 .my_button:hover {
-    opacity:0.8;
+  opacity:0.8;
 }
 
 .s_traj {
-    fill:none;
-    opacity: 0.5;
-    stroke-width:1.5;
+  fill:none;
+  opacity: 0.5;
+  stroke-width:1.5;
 }
 
 .s_traj:hover {
-    opacity:1;
-    stroke-width:5;
+  opacity:1;
+  stroke-width:5;
+}
+
+.allele_path {
+  fill:none;
+  opacity: 0.5;
+  stroke-width:1;
+}
+
+.allele_path:hover {
+  opacity:1;
+  stroke-width:5;
 }
 
 .highlighted_traj {
-    opacity:1;
-    stroke-width:5;
+  opacity:1;
+  stroke-width:5;
 }
 
-#facs_img {
-    position: absolute;
-    left:250px;
-    top:300px;
-    width:1000px;
-    height:700px;
-    z-index: 1;
-    display:none;
-}
