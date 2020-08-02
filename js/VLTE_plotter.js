@@ -2,6 +2,7 @@ var main_point_color = 'black';
 var main_stroke_color = '#444444';
 var sing_lin_selection_color = 'blue';
 var hover_color = 'red';
+var highlighted_mutation = null;
 
 var pdata; //fitness data
 var plates = ['P1', 'P2', 'P3'];
@@ -12,10 +13,10 @@ var micro_type = 'cropped';
 
 var fgens = [70, 550, 1410, 2640, 3630, 5150, 7530, 10150];
 var sgens = [70, 1410, 2640, 5150, 7530, 10150];
-var s_type = '_s_zeroed';
+var s_type = '_s_scaled';
 var strain2col = {'diploid': '#000000', 'alpha': '#FFB000', 'a': '#648FFF', 'BAD': 'grey'};
 var strains = ['diploid', 'alpha', 'a'];
-var s_domain = [-0.05, 0.25];
+var s_domains = {'P1': [-0.21, 0.15], 'P2': [-0.11, 0.17], 'P3': [-0.21, 0.21]};
 
 let_to_num = {'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5, 'F': 6, 'G': 7, 'H': 8};
 
@@ -38,9 +39,9 @@ var wgs_top_bottom_buf = 40;
 var gens_x = {'P1': d3.scaleLinear().range([fitness_left_break, fitness_left_break+fitness_onegraph_w]).domain([0, 10000]),
               'P2': d3.scaleLinear().range([fitness_left_break*2+fitness_onegraph_w, fitness_left_break*2+fitness_onegraph_w*2]).domain([0, 10000]),
               'P3': d3.scaleLinear().range([fitness_left_break*3+fitness_onegraph_w*2, fitness_left_break*3+fitness_onegraph_w*3]).domain([0, 10000])};
-var s_y = {'P1': d3.scaleLinear().range([fitness_h-fitness_h_buf, fitness_h_buf]).domain(s_domain),
-            'P2': d3.scaleLinear().range([fitness_h-fitness_h_buf, fitness_h_buf]).domain(s_domain),
-            'P3': d3.scaleLinear().range([fitness_h-fitness_h_buf, fitness_h_buf]).domain(s_domain)};
+var s_y = {'P1': d3.scaleLinear().range([fitness_h-fitness_h_buf, fitness_h_buf]).domain(s_domains['P1']),
+            'P2': d3.scaleLinear().range([fitness_h-fitness_h_buf, fitness_h_buf]).domain(s_domains['P2']),
+            'P3': d3.scaleLinear().range([fitness_h-fitness_h_buf, fitness_h_buf]).domain(s_domains['P3'])};
 
 var s_trajectory = {'P1': d3.line().x(function(d) { return gens_x['P1'](d.x); }).y(function(d) { return s_y['P1'](d.y); }),
                     'P2': d3.line().x(function(d) { return gens_x['P2'](d.x); }).y(function(d) { return s_y['P2'](d.y); }),
@@ -64,14 +65,16 @@ var num_bc_thresh = 3;
 
 var dat = {};
 var wells = ['P1B02', 'P1C02', 'P1B03', 'P1D03', 'P1B04', 'P1C04', 'P1E04', 'P1G04', 'P1C05', 'P1F05', 'P1G05', 'P1C06', 'P1C07', 'P1B07', 'P1F07', 'P1C08', 'P1F08', 'P1G08', 'P1C09', 'P1D09', 'P1E09', 'P1G09', 'P1F10', 'P1G10', 'P1B11', 'P1C11', 'P1E11', 'P1F11', 'P1G11', 'P1H11', 'P2C02', 'P2F02', 'P2D03', 'P2B04', 'P2C04', 'P2G04', 'P2B05', 'P2C05', 'P2G05', 'P2C06', 'P2D06', 'P2E06', 'P2B07', 'P2F07', 'P2B08', 'P2D08', 'P2E08', 'P2G08', 'P2B09', 'P2F09', 'P2G09', 'P2B10', 'P2C10', 'P2G10', 'P2B11', 'P2C11', 'P2D11', 'P2E11', 'P2F11', 'P2G11', 'P3D02', 'P3E02', 'P3G02', 'P3C03', 'P3D03', 'P3F03', 'P3C04', 'P3C05', 'P3D05', 'P3F05', 'P3G05', 'P3G06', 'P3B07', 'P3C07', 'P3F07', 'P3B08', 'P3E08', 'P3D09', 'P3F09', 'P3G09', 'P3B10', 'P3C10', 'P3D10', 'P3G10', 'P3B11', 'P3C11', 'P3D11', 'P3E11', 'P3F11', 'P3G11'];
+var current_wells = [];
 var well;
 var file_num = 0;
 
-var coding_changes = ['missense_variant', 'stop_lost', 'stop_gained', 'start_lost', 'conservative_inframe_insertion', 'conservative_inframe_deletion', 'disruptive_inframe_insertion', 'disruptive_inframe_deletion', 'frameshift_variant'];
+var coding_changes = ['missense', 'nonsense', 'indel', 'SV'];
 
 var wgs_filters = {};
 
 var fit_filters = {'good_data': ['strain', [RegExp('diploid', 'i'), RegExp('alpha', 'i'), RegExp('a', 'i')], 'look']};
+var fit_filters_use = true;
 
 //FUNCTION FOR BRING TO FRONT
 //http://bl.ocks.org/eesur/4e0a69d57d3bfc8a82c2
@@ -82,26 +85,46 @@ d3.selection.prototype.moveToFront = function() {
   });
 };
 
+function well_restruc(w) {
+  return w.slice(0,2) + String((w.slice(3,5)=='11')) + w.slice(3,5) + w[2];
+}
+
+function well_sorter(w1, w2) {
+  if (well_restruc(w1) < well_restruc(w2)) {
+    return -1;
+  } else if (well_restruc(w1) > well_restruc(w2)) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
 function filter_fitness() {
+  current_wells = []
   fitness_svg_obj.selectAll('.s_traj')
     .style('display', function(d) {
       for (var key in fit_filters) {
         var filt = fit_filters[key];
-        if (filt[0] != 'no filter') {
-          var filt_col = d[filt[0]];
-          var pass = false;
-          for (var i in filt[1]) {
-            if (filt_col.search(filt[1][i]) > -1) {
-              pass = true;
+        if (fit_filters_use || (['show_f', 'good_data'].indexOf(key) > -1)) {
+          if (filt[0] != 'no filter') {
+            var filt_col = d[filt[0]];
+            var pass = false;
+            for (var i in filt[1]) {
+              if (filt_col.search(filt[1][i]) > -1) {
+                pass = true;
+              }
             }
-          }
-          if ( ((!pass)&(filt[2]=='look')) | ((pass)&(filt[2]=='not')) ) {
-            return 'none';
+            if ( ((!pass)&(filt[2]=='look')) | ((pass)&(filt[2]=='not')) ) {
+              return 'none';
+            }
           }
         }
       }
+      current_wells.push(d['platewell']);
       return 'block';
     });
+  current_wells = current_wells.sort(well_sorter);
+  console.log(current_wells);
 }
 
 function change_show_focals() {
@@ -109,6 +132,15 @@ function change_show_focals() {
     fit_filters['show_f'] = ['platewell', wells, 'look']
   } else {
     fit_filters['show_f'] = ['no filter'];
+  }
+  filter_fitness();
+}
+
+function change_filter_focals() {
+  if (d3.select("#filter_pops").property('checked')) {
+    fit_filters_use = true;
+  } else {
+    fit_filters_use = false;
   }
   filter_fitness();
 }
@@ -156,24 +188,28 @@ function change_micro_type() {
   d3.select('#microscopy_img').attr('src', 'Timecourse_images/' + micro_type + '_' + current_platewell.slice(0,2) + '_' + current_platewell.slice(2,current_platewell.length) + '.png');
 }
 
+function try_to_show_wgs(platewell) {
+    //display wgs data
+    if (wells.indexOf(platewell > -1)) {
+      well_num = current_wells.indexOf(platewell);
+      read_wgs_data(platewell)
+    }
+    else { 
+      d3.select('#mut_gene').html('No sequencing data for this population');
+      d3.selectAll(".wgs_data_svg").remove();
+    }
+}
+
 function clicked_s(d) {
   console.log(d);
   highlight_well(d['platewell'], d);
-  //display wgs data
-  if (wells.indexOf(d['platewell']) > -1) {
-    file_num = wells.indexOf(d['platewell']);
-    read_wgs_data(d['platewell'])
-  }
-  else { 
-    d3.select('#mut_gene').html('No sequencing data for this population');
-    d3.selectAll(".wgs_data_svg").remove();
-  }
+  try_to_show_wgs(d['platewell']);
 }
 
 function make_fitness_graphs() {
+
   fitness_svg_obj = d3.select('#fitness_svg')
-  for (var i=0; i<3; i++) {
-    p = plates[i];
+  for (let p of plates) {
     var fitness_gens_ax = d3.axisBottom(gens_x[p]).ticks(5);
     var fitness_s_ax = d3.axisLeft(s_y[p]).ticks(5);
     fitness_svg_obj.append("g")
@@ -182,7 +218,7 @@ function make_fitness_graphs() {
       .call(fitness_s_ax);
     fitness_svg_obj.append("g")
       .attr("class", "axis")
-      .attr("transform", "translate(0," + s_y[p](s_domain[0]) + ")")
+      .attr("transform", "translate(0," + s_y[p](s_domains[p][0]) + ")")
       .call(fitness_gens_ax);
   }
 
@@ -196,8 +232,8 @@ function make_fitness_graphs() {
       })
       .attr('d', function(d) {
         var traj_d = [];
-        for (let i=0; i<fgens.length; i++) {
-          traj_d.push({'x': fgens[i], 'y': d['Gen' + String(fgens[i]) + s_type]})
+        for (let gen of fgens) {
+          traj_d.push({'x': gen, 'y': d['Gen' + String(gen) + s_type]})
         }
         //console.log(traj_d);
         return s_trajectory[d['plate']](traj_d); 
@@ -212,7 +248,12 @@ function load_fitness_data() {
   d3.tsv('well_fitness_info_etc.tsv')
     .then(function(raw_data) {
       pdata = raw_data;
+      for (row of pdata) {
+        current_wells.push(row['platewell']);
+      }
+      console.log(current_wells);
       make_fitness_graphs();
+      read_gff();
     })
     .catch(function(error) {
           console.log(error);
@@ -229,11 +270,32 @@ function show_overlay(which_one) {
 }
 
 //MUTATION INFO DISPLAY STUFF
-function highlight(lin) {
-  d3.select("#mut_gene").html(function() { if (lin["ANN"].split(';')[0].split('|')[4] == null) { return "NA"; } else { return lin["ANN"].split(';')[0].split('|')[4]; } } );
-  wgs_svg_obj.selectAll('.allele_count_text')
-    .text(function(d) { return lin["G"+String(d)+'_allele_counts']; })
-  d3.select("#mut_ann").html(lin["info"] + "<br /><br />Percentage of alt counts:" + lin['perc_of_alt']);
+function highlight(mutation) {
+  if (!mutation) {
+    if (highlighted_mutation) {
+      mutation = highlighted_mutation;
+    }
+  }
+  if (mutation) {
+    d3.select("#mut_gene").html(function() { if (mutation["ANN"].split(';')[0].split('|')[4] == null) { return "NA"; } else { return mutation["ANN"].split(';')[0].split('|')[4]; } } );
+    wgs_svg_obj.selectAll('.allele_count_text')
+      .text(function(d) { return mutation["G"+String(d)+'_allele_counts']; })
+    d3.select("#mut_ann").html(mutation["info"] + "<br /><br />Percentage of alt counts:" + mutation['perc_of_alt']);
+  }
+}
+
+function sticky_highlight(mutation) {
+  d3.selectAll('.allele_path')
+      .attr('class', 'allele_path')
+  if (highlighted_mutation == mutation) {
+    highlighted_mutation = null;
+  } else {
+    highlighted_mutation = mutation;
+    show_region(mutation['CHROM'], parseInt(mutation['POS']));
+    d3.selectAll('.allele_path')
+      .filter(function(d) { return (d['CHROM']==highlighted_mutation['CHROM']) && (d['POS']==highlighted_mutation['POS']); })
+      .attr('class', 'allele_path highlighted_allele').moveToFront();
+  }
 }
 
 function filter_wgs() {
@@ -244,8 +306,8 @@ function filter_wgs() {
         if (filt[0] != 'no filter') {
           var filt_col = d[filt[0]];
           var pass = false;
-          for (var i in filt[1]) {
-            if (filt_col.search(filt[1][i]) > -1) {
+          for (let f of filt[1]) {
+            if (filt_col.search(f) > -1) {
               pass = true;
             }
           }
@@ -284,7 +346,7 @@ function lookup_highlight() {
 
 function change_hide_syn() {
   if (d3.select("#hide_s_muts").property('checked')) {
-    wgs_filters['hide_s'] = ['ANN', coding_changes, 'look'];
+    wgs_filters['hide_s'] = ['ANN_simpler', coding_changes, 'look'];
   } else {
     wgs_filters['hide_s'] = ['no filter'];
   }
@@ -302,9 +364,14 @@ function make_allele_freq_graph() {
       .append("path")
         .attr("class", "allele_path")
         .on("mouseover", function(d) { 
-            highlight(d); 
+          highlight(d); 
         })
-        .on("click", function(d) { console.log(d); })
+        .on("mouseout", function() {
+          highlight(null)
+        })
+        .on("click", function(d) { 
+          sticky_highlight(d);
+        })
         .attr("stroke", "#333")
         .attr('d', function(d) {
           var traj_d = [];
@@ -340,10 +407,13 @@ function make_allele_freq_graph() {
 }
 
 function read_wgs_data(well) {
+  current_well = well;
   file_name = well + ".tsv";
   d3.tsv("Allele_freqs/" + file_name)
     .then(function(data_in) {
       dat = data_in;
+      console.log(file_name);
+      console.log(dat.length, dat[0]);
       //console.log(dat.length);
       d3.selectAll(".wgs_data_svg").remove();
       make_allele_freq_graph();
@@ -353,14 +423,14 @@ function read_wgs_data(well) {
   });
 }
 
-function new_file(increment) {
-  if (file_num + increment >= wells.length) {
-    file_num = 0;
-  } else if (file_num + increment < 0) {
-    file_num = wells.length-1;
+function new_well(increment) {
+  if (well_num + increment >= current_wells.length) {
+    well_num = 0;
+  } else if (well_num + increment < 0) {
+    well_num = wells.length-1;
   } else {
-    file_num = file_num + increment;
+    well_num = well_num + increment;
   }
-  read_wgs_data(wells[file_num]);
-  highlight_well(wells[file_num], get_well_row(wells[file_num]));
+  try_to_show_wgs(current_wells[well_num]);
+  highlight_well(current_wells[well_num], get_well_row(current_wells[well_num]));
 }

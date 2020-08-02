@@ -9,6 +9,7 @@
 <script src="https://www.google.com/jsapi"></script>
 <script src="d3/d3.min.js"></script>
 <script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="js/genome_browser.js"></script>
 <script src="js/VLTE_plotter.js"></script>
     
 </head>
@@ -22,8 +23,10 @@
           <p id="well_name_etc" class="well_info">Well:</p>
         </div>
         <div id="searches_etc">
-          <button type="button" class="my_button" onclick="new_file(-1)">Prev</button>
-          <button type="button" class="my_button" onclick="new_file(1)">Next</button>
+          <button type="button" class="my_button" onclick="new_well(-1)">Prev</button>
+          <button type="button" class="my_button" onclick="new_well(1)">Next</button>
+          <input type="checkbox" id="filter_pops" name="filter_pops" value="show" onchange="change_filter_focals()" checked>
+          <label for="filter_pops">Filter populations</label>
           <input type="checkbox" id="show_focal_pops" name="show_focal_pops" value="show" onchange="change_show_focals()" checked>
           <label for="show_focal_pops">Show only focal populations</label>
           <input type="checkbox" id="hide_s_muts" name="hide_s_muts" value="hide" onchange="change_hide_syn()" checked>
@@ -45,6 +48,7 @@
           <div class='overlay_button', onclick="show_overlay('facs')">FACS</div>
           <div class='overlay_button', onclick="show_overlay('depth')">DEPTH</div>
           <div class='overlay_button', onclick="show_overlay('microscopy')">MICROSCOPY</div>
+          <div class='overlay_button', onclick="show_overlay('genome')">EVIDENCE</div>
         </div>
         
         <div id="facs_div" class="data_overlay">
@@ -68,6 +72,12 @@
         <div id="microscopy_div" class="data_overlay">
           <div class="escape_data_overlay" onclick="show_overlay('none')">X</div>
           <img id="microscopy_img" onclick="change_micro_type()">
+        </div>
+        <div id="genome_div" class="data_overlay">
+          <div id='genome_gen_buttons'></div>
+          <div class="escape_data_overlay" onclick="show_overlay('none')">X</div>
+          <svg id="genome_browser"></svg>
+          <div id="alignment_area"></div>
         </div>
       </div>
     </div>
