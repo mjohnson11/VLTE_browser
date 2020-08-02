@@ -68,6 +68,7 @@ body {
   height: 250px;
   width: 270px;
   padding-left:10px;
+  hyphens:auto;
 }
 
 #pop_stuff {

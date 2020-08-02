@@ -277,7 +277,8 @@ function highlight(mutation) {
     }
   }
   if (mutation) {
-    d3.select("#mut_gene").html(function() { if (mutation["ANN"].split(';')[0].split('|')[4] == null) { return "NA"; } else { return mutation["ANN"].split(';')[0].split('|')[4]; } } );
+    console.log(mutation);
+    d3.select("#mut_gene").html(function() { if (mutation["ANN_simpler"].split(';')[0].split('|')[3] == null) { return "NA"; } else { return mutation["ANN_simpler"].split(';')[0].split('|')[3]; } } );
     wgs_svg_obj.selectAll('.allele_count_text')
       .text(function(d) { return mutation["G"+String(d)+'_allele_counts']; })
     d3.select("#mut_ann").html(mutation["info"] + "<br /><br />Percentage of alt counts:" + mutation['perc_of_alt']);
