@@ -6,6 +6,7 @@ var highlighted_mutation = null;
 
 var pdata; //fitness data
 var plates = ['P1', 'P2', 'P3'];
+var plate_names = ['YPD 30°C', 'SC 30°C', 'SC 37°C'];
 
 var current_platewell;
 
@@ -161,7 +162,7 @@ function show_coverage(i) {
 
 function highlight_well(platewell, tmp_info) {
   current_platewell = platewell;
-  d3.select("#well_name_etc").html('Well: ' + platewell + ', ' + tmp_info['strain'] + '  ploidy: ' + tmp_info['ploidy']);
+  d3.select("#well_name_etc").html('Well: ' + platewell + ', ' + tmp_info['strain']);
   d3.selectAll('.facs_img').attr("src", "FACS_graphs/" + platewell.slice(0,2) + '_' + platewell.slice(2,platewell.length) + '.png');
   d3.select('#depth_img1').attr("src", "coverage/" + platewell + '_allgens_depth.png');
   d3.select('#depth_img2').attr("src", "coverage/G10150_" + platewell + '_depth.png');
@@ -220,6 +221,27 @@ function make_fitness_graphs() {
       .attr("class", "axis")
       .attr("transform", "translate(0," + s_y[p](s_domains[p][0]) + ")")
       .call(fitness_gens_ax);
+    
+    fitness_svg_obj.append('text')
+      .attr('class', 'axis_label')
+      .attr('text-anchor', 'middle')
+      .attr('x', gens_x[p](5000))
+      .attr('y', fitness_h-2)
+      .text('Generations');
+  
+    fitness_svg_obj.append('text')
+      .attr('class', 'axis_label')
+      .attr('text-anchor', 'middle')
+      .attr('x', gens_x[p](5000))
+      .attr('y', 40)
+      .text("("+plate_names[plates.indexOf(p)]+")");
+
+    fitness_svg_obj.append('text')
+      .attr('class', 'axis_label')
+      .attr('text-anchor', 'middle')
+      .attr('x', gens_x[p](5000))
+      .attr('y', 20)
+      .text("Fitness");
   }
 
   fitness_svg_obj.selectAll('.s_traj')
@@ -278,9 +300,14 @@ function highlight(mutation) {
   }
   if (mutation) {
     console.log(mutation);
-    d3.select("#mut_gene").html(function() { if (mutation["ANN_simpler"].split(';')[0].split('|')[3] == null) { return "NA"; } else { return mutation["ANN_simpler"].split(';')[0].split('|')[3]; } } );
+    d3.select("#mut_gene").html(function() { 
+      if (mutation["ANN_simpler"].split(';')[0].split('|')[3] == null) { return "NA"; } 
+      else { 
+        return "<a target='_blank' href=https://www.yeastgenome.org/locus/" + mutation["ANN_simpler"].split(';')[0].split('|')[3] + ">" + mutation["ANN_simpler"].split(';')[0].split('|')[3] + "</a>"; 
+      }  
+    });
     wgs_svg_obj.selectAll('.allele_count_text')
-      .text(function(d) { return mutation["G"+String(d)+'_allele_counts']; })
+      .text(function(d) { return "(" + String(mutation["G"+String(d)+'_allele_counts']).replace(".0", '').replace(".0", '') + ")"; })
     d3.select("#mut_ann").html(mutation["info"] + "<br /><br />Percentage of alt counts:" + mutation['perc_of_alt']);
   }
 }
@@ -399,9 +426,24 @@ function make_allele_freq_graph() {
         .attr('class', 'allele_count_text')
         .attr('id', function(d) { return 'allele_count_' + String(d); })
         .attr('text-anchor', 'middle')
+        .attr('font-size', 12)
         .attr('x', function(d) { return time_x(d); })
-        .attr('y', function(d) { return freq_ax(1.1); })
+        .attr('y', freq_ax(1.05))
         .text(function(d) { return String(d); })
+
+  wgs_svg_obj.append('text')
+    .attr('class', 'axis_label')
+    .attr('text-anchor', 'middle')
+    .attr('x', time_x(5000))
+    .attr('y', freq_ax(-0.2))
+    .text('Generations');
+
+  wgs_svg_obj.append('text')
+    .attr('class', 'axis_label')
+    .attr('text-anchor', 'middle')
+    .attr('x', time_x(5000))
+    .attr('y', freq_ax(1.15))
+    .text("Allele Frequency");
     
   lookup_highlight();
   change_hide_syn();

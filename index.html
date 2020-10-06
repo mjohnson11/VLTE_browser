@@ -11,11 +11,14 @@
 <script src="https://d3js.org/d3.v5.min.js"></script>
 <script src="js/genome_browser.js"></script>
 <script src="js/VLTE_plotter.js"></script>
+
+<meta charset="UTF-8">
     
 </head>
 
 <body onload="load_fitness_data()" >
     <h1 id="page_title">VLTE BROWSER</h1>
+    <div id='intro_p'>This is a work-in-progress data viewer for an experimental evolution project. We evolved yeast populations for 10,000 generations in three environments and at several timepoints during the evolution, measured their fitness and sequenced whole populations. Below on the left you can see how populations became more fit over time, relative to a reference strain. If you click on a lineage, you can see the frequencies of mutations spreading through the population on the right. At the bottom, you can get additional information: "FACS" displays the raw flow cytometry data underlying the fitness measurements, "DEPTH" displays the standardized coverage across the genome at every timepoint so we can observe aneuploidies and other copy number changes, "MICROSCOPY" shows preliminary imaging of each population over time, and "EVIDENCE" shows the aligned reads for a mutation (you have to click on a mutation to see this, and there are still some bugs here!).</div>
     <div class="line_divider_2"></div><br /><br />
     <div id="main_div">
       <div id='pop_stuff'>
