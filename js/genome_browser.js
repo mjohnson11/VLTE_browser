@@ -49,7 +49,6 @@ function translate(entry) {
 }
 
 function show_region(chromo, loc) {
-  console.log(chromo, loc);
   let use_rows = [];
   for (let entry of gene_map[chromo]) {
     if (parseInt(entry['end']) > (loc-wide_range) && parseInt(entry['start']) < (loc+wide_range)) {
@@ -155,14 +154,23 @@ function place_alignment(loc, seq, start) {
 
 function process_alignment(a, bs) {
   let formatted_alignment = "";
+  let ai = 0
   for (let i=0; i<bs.length; i++) {
-    if (i >= a.length) {
+    if (ai >= a.length) {
       return formatted_alignment;
     } else {
-      if (a[i]==bs[i]) {
-        formatted_alignment += '|';
+      if (a[ai] == '(') { //insertion
+        let tmp = a.slice(ai+1, a.length);
+        let insertion = tmp.slice(0, tmp.indexOf(')')) + tmp[tmp.indexOf(')')+1]
+        formatted_alignment += '<em class="alignment_insertion" title="' + insertion + '">^</em>'
+        ai += insertion.length+2
       } else {
-        formatted_alignment += a[i];
+        if (a[ai]==bs[i]) {
+          formatted_alignment += '|';
+        } else {
+          formatted_alignment += a[ai];
+        }
+        ai += 1
       }
     }
   }

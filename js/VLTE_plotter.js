@@ -10,10 +10,21 @@ var plate_names = ['YPD 30°C', 'SC 30°C', 'SC 37°C'];
 
 var current_platewell;
 
-var micro_type = 'cropped';
-
 var fgens = [70, 550, 1410, 2640, 3630, 5150, 7530, 10150];
 var sgens = [70, 1410, 2640, 5150, 7530, 10150];
+
+// This dictionary changes the recorded generation numbers to the correct generation numbers
+// Since P3 only does 8 gens/day it is very different, the other differences are due to little recording errors
+var gen_fixer = {70: {'P1': 70, 'P2': 70, 'P3': 56, 'P4': 70},
+             550: {'P1': 560, 'P2': 560, 'P3': 448, 'P4': 560},
+             1410: {'P1': 1410, 'P2': 1410, 'P3': 1128, 'P4': 1410},
+             2640: {'P1': 2640, 'P2': 2640, 'P3': 2106, 'P4': 2640},
+             3630: {'P1': 3660, 'P2': 3660, 'P3': 2922, 'P4': 3660},
+             5150: {'P1': 5170, 'P2': 5170, 'P3': 4130, 'P4': 5170},
+             7530: {'P1': 7550, 'P2': 7560, 'P3': 6042, 'P4': 7560},
+             10150: {'P1': 10190, 'P2': 10200, 'P3': 8098, 'P4': 10200}}
+
+
 var s_type = '_s_scaled';
 var strain2col = {'diploid': '#000000', 'alpha': '#FFB000', 'a': '#648FFF', 'BAD': 'grey'};
 var strains = ['diploid', 'alpha', 'a'];
@@ -160,6 +171,10 @@ function show_coverage(i) {
   d3.select('#depth_img2').attr("src", "coverage/G" + String(sgens[i]) + "_" + current_platewell + '_depth.png');
 }
 
+function big_image_toggle(display_type) {
+  d3.select("#big_microscopy_div").style("display", display_type);
+}
+
 function highlight_well(platewell, tmp_info) {
   current_platewell = platewell;
   d3.select("#well_name_etc").html('Well: ' + platewell + ', ' + tmp_info['strain']);
@@ -173,21 +188,14 @@ function highlight_well(platewell, tmp_info) {
     .filter(function(d) { return d['platewell']==platewell; })
     .attr('class', 's_traj highlighted_traj').moveToFront();
   if (wells.indexOf(platewell) > -1) {
-    d3.select('#microscopy_img').attr('src', 'Timecourse_images/' + micro_type + '_' + platewell.slice(0,2) + '_' + platewell.slice(2,platewell.length) + '.png');
+    d3.select('#microscopy_img').attr('src', 'imaging/cropped_' + platewell + '.png');
+    d3.select('#big_microscopy_img').attr('src', 'imaging/cropped_' + platewell + '.png');
   } else {
     d3.select('#microscopy_img').attr('src', 'no_microscopy.png');
+    d3.select('#big_microscopy_img').attr('src', 'no_microscopy.png');
   }
 }
 
-function change_micro_type() {
-  if (micro_type == 'cropped') {
-    micro_type = 'fuller';
-  } else {
-    micro_type = 'cropped';
-  }
-  console.log(micro_type);
-  d3.select('#microscopy_img').attr('src', 'Timecourse_images/' + micro_type + '_' + current_platewell.slice(0,2) + '_' + current_platewell.slice(2,current_platewell.length) + '.png');
-}
 
 function try_to_show_wgs(platewell) {
     //display wgs data
@@ -255,7 +263,7 @@ function make_fitness_graphs() {
       .attr('d', function(d) {
         var traj_d = [];
         for (let gen of fgens) {
-          traj_d.push({'x': gen, 'y': d['Gen' + String(gen) + s_type]})
+          traj_d.push({'x': gen_fixer[gen][d['plate']], 'y': d['Gen' + String(gen) + s_type]})
         }
         //console.log(traj_d);
         return s_trajectory[d['plate']](traj_d); 
@@ -299,16 +307,15 @@ function highlight(mutation) {
     }
   }
   if (mutation) {
-    console.log(mutation);
+    wgs_svg_obj.selectAll('.allele_count_text')
+      .text(function(d) { return "(" + String(mutation["G"+String(d)+'_allele_counts']).replace(".0", '').replace(".0", '') + ")"; })
+    d3.select("#mut_ann").html(mutation['CHROM']+' '+mutation['POS']+' '+mutation['REF']+'->'+mutation['ALT'] + "<br /><br />" + mutation["info"] + "<br /><br />" + mutation["briefDescription"]);
     d3.select("#mut_gene").html(function() { 
       if (mutation["ANN_simpler"].split(';')[0].split('|')[3] == null) { return "NA"; } 
       else { 
-        return "<a target='_blank' href=https://www.yeastgenome.org/locus/" + mutation["ANN_simpler"].split(';')[0].split('|')[3] + ">" + mutation["ANN_simpler"].split(';')[0].split('|')[3] + "</a>"; 
+        return "<a target='_blank' href=https://www.yeastgenome.org/locus/" + mutation["Gene_ORF"] + ">" + mutation["Gene_ORF"] + "</a>"; 
       }  
     });
-    wgs_svg_obj.selectAll('.allele_count_text')
-      .text(function(d) { return "(" + String(mutation["G"+String(d)+'_allele_counts']).replace(".0", '').replace(".0", '') + ")"; })
-    d3.select("#mut_ann").html(mutation["info"] + "<br /><br />Percentage of alt counts:" + mutation['perc_of_alt']);
   }
 }
 
@@ -364,10 +371,10 @@ function lookup_highlight() {
   }
   search_for1 = RegExp(search_for1);
   search_for2 = RegExp(search_for2);
-  wgs_filters['search_block1'] = ['info', [search_for1], how1];
-  wgs_filters['search_block2'] = ['info', [search_for2], how2];
-  fit_filters['search_block1'] = ['genes_w_muts_fixed', [search_for1], how1];
-  fit_filters['search_block2'] = ['genes_w_muts_fixed', [search_for2], how2];
+  wgs_filters['search_block1'] = ['ANN_simpler', [search_for1], how1];
+  wgs_filters['search_block2'] = ['ANN_simpler', [search_for2], how2];
+  fit_filters['search_block1'] = ['genes_w_nonsyn_muts', [search_for1], how1];
+  fit_filters['search_block2'] = ['genes_w_nonsyn_muts', [search_for2], how2];
   filter_fitness();
   filter_wgs();
 }
@@ -381,7 +388,7 @@ function change_hide_syn() {
   filter_wgs();
 }
 
-function make_allele_freq_graph() {
+function make_allele_freq_graph(well) {
   wgs_svg_obj = d3.select("#wgs_svg")
     .append("svg")
         .attr("class", "wgs_data_svg");
@@ -404,10 +411,14 @@ function make_allele_freq_graph() {
         .attr('d', function(d) {
           var traj_d = [];
           var bits = d['af_trajectory'].split(';');
-          for (let i=0; i<bits.length; i++) {
-            traj_d.push({'x': parseInt(bits[i].split('_')[0]), 'y': parseFloat(bits[i].split('_')[1])})
+          if (bits.length > 1) {
+            for (let i=0; i<bits.length; i++) {
+              traj_d.push({'x': gen_fixer[parseInt(bits[i].split('_')[0])][well.slice(0,2)], 'y': parseFloat(bits[i].split('_')[1])})
+            }
+            return freq_traj(traj_d); 
+          } else {
+            return "";
           }
-          return freq_traj(traj_d); 
         });
 
   wgs_svg_obj.append("g")
@@ -427,9 +438,8 @@ function make_allele_freq_graph() {
         .attr('id', function(d) { return 'allele_count_' + String(d); })
         .attr('text-anchor', 'middle')
         .attr('font-size', 12)
-        .attr('x', function(d) { return time_x(d); })
-        .attr('y', freq_ax(1.05))
-        .text(function(d) { return String(d); })
+        .attr('x', function(d) { return time_x(gen_fixer[d][well.slice(0,2)]); })
+        .attr('y', freq_ax(1.05));
 
   wgs_svg_obj.append('text')
     .attr('class', 'axis_label')
@@ -459,7 +469,7 @@ function read_wgs_data(well) {
       console.log(dat.length, dat[0]);
       //console.log(dat.length);
       d3.selectAll(".wgs_data_svg").remove();
-      make_allele_freq_graph();
+      make_allele_freq_graph(well);
     })
     .catch(function(error) {
       console.log(error);  

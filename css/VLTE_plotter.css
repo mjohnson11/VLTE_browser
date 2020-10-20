@@ -47,7 +47,7 @@ body {
   top: 0px;
   left:0px;
   height: 250px;
-  width: 650px;
+  width: 680px;
 }
 
 #wgs_svg_div {
@@ -155,13 +155,38 @@ body {
   top:0px;
   font-size:15px;
   font-family:monospace;
-  text-align:center;
   width:13px;
   height:15px;
   border: 1px solid black;
+  border-radius: 25%;
+  display: flex;
+  margin: auto;
+  align-items:center;
+  justify-content:center;
 }
 
 .escape_data_overlay:hover {
+  opacity:0.5;
+}
+
+.escape_large_overlay {
+  position: fixed;
+  left:12%;
+  top:110px;
+  font-size:25px;
+  font-family:monospace;
+  width:23px;
+  height:25px;
+  border: 3px solid black;
+  border-radius: 25%;
+  z-index:3;
+  display: flex;
+  margin: auto;
+  align-items:center;
+  justify-content:center;
+}
+
+.escape_large_overlay:hover {
   opacity:0.5;
 }
 
@@ -247,7 +272,32 @@ body {
   position: absolute;
   top: 0px;
   left: 30px;
-  height:400px;
+  width: 90%;
+}
+
+#microscopy_img:hover {
+  opacity:0.8;
+}
+
+#big_microscopy_div {
+  position:fixed;
+  width:80%;
+  left:10%;
+  overflow-x:scroll;
+  top:100px;
+  height:520px;
+  display: none;
+  z-index: 2;
+  border-radius: 40px;
+  border: 3px solid black;
+  background-color: white;
+}
+
+#big_microscopy_img {
+  position: absolute;
+  top: 0px;
+  left: 30px;
+  height: 100%;
 }
 
 /*GRAPH STUFF*/

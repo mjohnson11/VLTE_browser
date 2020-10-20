@@ -17,73 +17,77 @@
 </head>
 
 <body onload="load_fitness_data()" >
-    <h1 id="page_title">VLTE BROWSER</h1>
-    <div id='intro_p'>This is a work-in-progress data viewer for an experimental evolution project. We evolved yeast populations for 10,000 generations in three environments and at several timepoints during the evolution, measured their fitness and sequenced whole populations. Below on the left you can see how populations became more fit over time, relative to a reference strain. If you click on a lineage, you can see the frequencies of mutations spreading through the population on the right. At the bottom, you can get additional information: "FACS" displays the raw flow cytometry data underlying the fitness measurements, "DEPTH" displays the standardized coverage across the genome at every timepoint so we can observe aneuploidies and other copy number changes, "MICROSCOPY" shows preliminary imaging of each population over time, and "EVIDENCE" shows the aligned reads for a mutation (you have to click on a mutation to see this, and there are still some bugs here!).</div>
-    <div class="line_divider_2"></div><br /><br />
-    <div id="main_div">
-      <div id='pop_stuff'>
-        <div id="pop_info">
-          <p id="well_name_etc" class="well_info">Well:</p>
-        </div>
-        <div id="searches_etc">
-          <button type="button" class="my_button" onclick="new_well(-1)">Prev</button>
-          <button type="button" class="my_button" onclick="new_well(1)">Next</button>
-          <input type="checkbox" id="filter_pops" name="filter_pops" value="show" onchange="change_filter_focals()" checked>
-          <label for="filter_pops">Filter populations</label>
-          <input type="checkbox" id="show_focal_pops" name="show_focal_pops" value="show" onchange="change_show_focals()" checked>
-          <label for="show_focal_pops">Show only focal populations</label>
-          <input type="checkbox" id="hide_s_muts" name="hide_s_muts" value="hide" onchange="change_hide_syn()" checked>
-          <label for="hide_s_muts">Hide synon. + intergenic</label>
-          <input type="text" id="cat_search1" onkeyup="lookup_highlight()" placeholder="Search for gene name or mutation type">
-          <input type="text" id="cat_search2" onkeyup="lookup_highlight()" placeholder="Search for gene name or mutation type">
-        </div>
+  <div id="big_microscopy_div">
+    <div class="escape_large_overlay" onclick="big_image_toggle('none')">X</div>
+    <img id="big_microscopy_img">
+  </div>
+  <h1 id="page_title">VLTE BROWSER</h1>
+  <div id='intro_p'>This is a work-in-progress data viewer for an experimental evolution project. We evolved yeast populations for 10,000 generations in three environments and at several timepoints during the evolution, measured their fitness and sequenced whole populations. Below on the left you can see how populations became more fit over time, relative to a reference strain. If you click on a lineage, you can see the frequencies of mutations spreading through the population on the right. At the bottom, you can get additional information: "FACS" displays the raw flow cytometry data underlying the fitness measurements, "DEPTH" displays the standardized coverage across the genome at every timepoint so we can observe aneuploidies and other copy number changes, "MICROSCOPY" shows preliminary imaging of each population over time, and "EVIDENCE" shows the aligned reads for a mutation (you have to click on a mutation to see this, and there are still some bugs here!).</div>
+  <div class="line_divider_2"></div><br /><br />
+  <div id="main_div">
+    <div id='pop_stuff'>
+      <div id="pop_info">
+        <p id="well_name_etc" class="well_info">Well:</p>
       </div>
-      <div id="data_div">
-        <div id="fitness_svg_div"><svg id="fitness_svg" class="data_svg"></svg></div>
-        <div id="wgs_svg_div">
-          <svg id="wgs_svg" class="data_svg"></svg>
-          <div id='mut_stuff'>
-            <h2 id="mut_gene"></h2>
-            <p id="mut_ann"></p>
-          </div>
-        </div>
-        <div id='overlay_button_div'>
-          <div class='overlay_button', onclick="show_overlay('facs')">FACS</div>
-          <div class='overlay_button', onclick="show_overlay('depth')">DEPTH</div>
-          <div class='overlay_button', onclick="show_overlay('microscopy')">MICROSCOPY</div>
-          <div class='overlay_button', onclick="show_overlay('genome')">EVIDENCE</div>
-        </div>
-        
-        <div id="facs_div" class="data_overlay">
-          <div class="escape_data_overlay" onclick="show_overlay('none')">X</div>
-          <img class="facs_img" id="facs_img1">
-          <img class="facs_img" id="facs_img2">
-          <img class="facs_img" id="facs_img3">
-          <img class="facs_img" id="facs_img4">
-        </div>
-        <div id="depth_div" class="data_overlay">
-          <div class="escape_data_overlay" onclick="show_overlay('none')">X</div>
-          <img id="depth_img1">
-          <img id="depth_img2">
-          <div class="depth_overlay" onmouseover="show_coverage(0)"></div>
-          <div class="depth_overlay" onmouseover="show_coverage(1)"></div>
-          <div class="depth_overlay" onmouseover="show_coverage(2)"></div>
-          <div class="depth_overlay" onmouseover="show_coverage(3)"></div>
-          <div class="depth_overlay" onmouseover="show_coverage(4)"></div>
-          <div class="depth_overlay" onmouseover="show_coverage(5)"></div>
-        </div>
-        <div id="microscopy_div" class="data_overlay">
-          <div class="escape_data_overlay" onclick="show_overlay('none')">X</div>
-          <img id="microscopy_img" onclick="change_micro_type()">
-        </div>
-        <div id="genome_div" class="data_overlay">
-          <div id='genome_gen_buttons'></div>
-          <div class="escape_data_overlay" onclick="show_overlay('none')">X</div>
-          <svg id="genome_browser"></svg>
-          <div id="alignment_area"></div>
-        </div>
+      <div id="searches_etc">
+        <button type="button" class="my_button" onclick="new_well(-1)">Prev</button>
+        <button type="button" class="my_button" onclick="new_well(1)">Next</button>
+        <input type="checkbox" id="filter_pops" name="filter_pops" value="show" onchange="change_filter_focals()" checked>
+        <label for="filter_pops">Filter populations</label>
+        <input type="checkbox" id="show_focal_pops" name="show_focal_pops" value="show" onchange="change_show_focals()" checked>
+        <label for="show_focal_pops">Show only focal populations</label>
+        <input type="checkbox" id="hide_s_muts" name="hide_s_muts" value="hide" onchange="change_hide_syn()" checked>
+        <label for="hide_s_muts">Hide synon. + intergenic</label>
+        <input type="text" id="cat_search1" onkeyup="lookup_highlight()" placeholder="Search for gene name or mutation type">
+        <input type="text" id="cat_search2" onkeyup="lookup_highlight()" placeholder="Search for gene name or mutation type">
       </div>
     </div>
+    <div id="data_div">
+      <div id="fitness_svg_div"><svg id="fitness_svg" class="data_svg"></svg></div>
+      <div id="wgs_svg_div">
+        <svg id="wgs_svg" class="data_svg"></svg>
+        <div id='mut_stuff'>
+          <h2 id="mut_gene"></h2>
+          <p id="mut_ann"></p>
+        </div>
+      </div>
+      <div id='overlay_button_div'>
+        <div class='overlay_button', onclick="show_overlay('facs')">FACS</div>
+        <div class='overlay_button', onclick="show_overlay('depth')">DEPTH</div>
+        <div class='overlay_button', onclick="show_overlay('microscopy')">MICROSCOPY</div>
+        <div class='overlay_button', onclick="show_overlay('genome')">EVIDENCE</div>
+      </div>
+      
+      <div id="facs_div" class="data_overlay">
+        <div class="escape_data_overlay" onclick="show_overlay('none')">X</div>
+        <img class="facs_img" id="facs_img1">
+        <img class="facs_img" id="facs_img2">
+        <img class="facs_img" id="facs_img3">
+        <img class="facs_img" id="facs_img4">
+      </div>
+      <div id="depth_div" class="data_overlay">
+        <div class="escape_data_overlay" onclick="show_overlay('none')">X</div>
+        <img id="depth_img1">
+        <img id="depth_img2">
+        <div class="depth_overlay" onmouseover="show_coverage(0)"></div>
+        <div class="depth_overlay" onmouseover="show_coverage(1)"></div>
+        <div class="depth_overlay" onmouseover="show_coverage(2)"></div>
+        <div class="depth_overlay" onmouseover="show_coverage(3)"></div>
+        <div class="depth_overlay" onmouseover="show_coverage(4)"></div>
+        <div class="depth_overlay" onmouseover="show_coverage(5)"></div>
+      </div>
+      <div id="microscopy_div" class="data_overlay">
+        <div class="escape_data_overlay" onclick="show_overlay('none')">X</div>
+        <img id="microscopy_img" onclick="big_image_toggle('block')">
+      </div>
+      <div id="genome_div" class="data_overlay">
+        <div id='genome_gen_buttons'></div>
+        <div class="escape_data_overlay" onclick="show_overlay('none')">X</div>
+        <svg id="genome_browser"></svg>
+        <div id="alignment_area"></div>
+      </div>
+    </div>
+  </div>
 <!---->
 
 </body>
