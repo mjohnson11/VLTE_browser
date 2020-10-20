@@ -168,7 +168,7 @@ function get_well_row(platewell) {
 
 function show_coverage(i) {
   console.log(i);
-  d3.select('#depth_img2').attr("src", "coverage/G" + String(sgens[i]) + "_" + current_platewell + '_depth.png');
+  d3.select('#depth_img2').attr("src", "/exp_evo_browser/coverage/G" + String(sgens[i]) + "_" + current_platewell + '_depth.png');
 }
 
 function big_image_toggle(display_type) {
@@ -178,9 +178,9 @@ function big_image_toggle(display_type) {
 function highlight_well(platewell, tmp_info) {
   current_platewell = platewell;
   d3.select("#well_name_etc").html('Well: ' + platewell + ', ' + tmp_info['strain']);
-  d3.selectAll('.facs_img').attr("src", "FACS_graphs/" + platewell.slice(0,2) + '_' + platewell.slice(2,platewell.length) + '.png');
-  d3.select('#depth_img1').attr("src", "coverage/" + platewell + '_allgens_depth.png');
-  d3.select('#depth_img2').attr("src", "coverage/G10150_" + platewell + '_depth.png');
+  d3.selectAll('.facs_img').attr("src", "/exp_evo_browser/FACS_graphs/" + platewell.slice(0,2) + '_' + platewell.slice(2,platewell.length) + '.png');
+  d3.select('#depth_img1').attr("src", "/exp_evo_browser/coverage/" + platewell + '_allgens_depth.png');
+  d3.select('#depth_img2').attr("src", "/exp_evo_browser/coverage/G10150_" + platewell + '_depth.png');
   d3.select("#see_facs_data").html('see FACS data (click it to close it)');
   d3.select("#see_depth_data").html('see depth data');
   d3.selectAll('.s_traj').attr('class', 's_traj');
@@ -188,11 +188,11 @@ function highlight_well(platewell, tmp_info) {
     .filter(function(d) { return d['platewell']==platewell; })
     .attr('class', 's_traj highlighted_traj').moveToFront();
   if (wells.indexOf(platewell) > -1) {
-    d3.select('#microscopy_img').attr('src', 'imaging/cropped_' + platewell + '.png');
-    d3.select('#big_microscopy_img').attr('src', 'imaging/cropped_' + platewell + '.png');
+    d3.select('#microscopy_img').attr('src', '/exp_evo_browser/imaging/cropped_' + platewell + '.png');
+    d3.select('#big_microscopy_img').attr('src', '/exp_evo_browser/imaging/cropped_' + platewell + '.png');
   } else {
-    d3.select('#microscopy_img').attr('src', 'no_microscopy.png');
-    d3.select('#big_microscopy_img').attr('src', 'no_microscopy.png');
+    d3.select('#microscopy_img').attr('src', '/exp_evo_browser/no_microscopy.png');
+    d3.select('#big_microscopy_img').attr('src', '/exp_evo_browser/no_microscopy.png');
   }
 }
 
@@ -275,7 +275,7 @@ function make_fitness_graphs() {
 }
 
 function load_fitness_data() {
-  d3.tsv('well_fitness_info_etc.tsv')
+  d3.tsv('/exp_evo_browser/well_fitness_info_etc.tsv')
     .then(function(raw_data) {
       pdata = raw_data;
       for (row of pdata) {
@@ -461,7 +461,7 @@ function make_allele_freq_graph(well) {
 function read_wgs_data(well) {
   current_well = well;
   file_name = well + ".tsv";
-  d3.tsv("Allele_freqs/" + file_name)
+  d3.tsv("/exp_evo_browser/Allele_freqs/" + file_name)
     .then(function(data_in) {
       dat = data_in;
       console.log(file_name);

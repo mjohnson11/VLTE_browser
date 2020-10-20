@@ -182,7 +182,7 @@ function process_alignment(a, bs) {
 
 function read_alignments(galign, well, chromo, loc, gen, base_seq) {
   d3.selectAll('.read_alignment').remove();
-  d3.tsv("evidence_sams/"+well+'_'+chromo+'_sam.tsv')
+  d3.tsv("/exp_evo_browser/evidence_sams/"+well+'_'+chromo+'_sam.tsv')
     .then(function(align_in) {
         for (let row of align_in) {
           if (row["Gen"]==gen) {
@@ -213,7 +213,7 @@ function setup_gbrowse() {
 }
 
 function read_gff() {
-  d3.tsv("w303_vlte_gff_simplified.tsv")
+  d3.tsv("/exp_evo_browser/w303_vlte_gff_simplified.tsv")
     .then(function(data_in) {
       gff_dat = data_in;
       d3.text("w303_vlte.fasta")
