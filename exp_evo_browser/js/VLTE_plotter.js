@@ -275,6 +275,7 @@ function make_fitness_graphs() {
 }
 
 function load_fitness_data() {
+  read_gff();
   d3.tsv('/exp_evo_browser/well_fitness_info_etc.tsv')
     .then(function(raw_data) {
       pdata = raw_data;
@@ -283,7 +284,6 @@ function load_fitness_data() {
       }
       console.log(current_wells);
       make_fitness_graphs();
-      read_gff();
     })
     .catch(function(error) {
           console.log(error);

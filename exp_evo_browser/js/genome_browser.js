@@ -50,7 +50,6 @@ function translate(entry) {
 
 function show_region(chromo, loc, well, gen_fixer) {
   let use_rows = [];
-  console.log('here');
   for (let entry of gene_map[chromo]) {
     if (parseInt(entry['end']) > (loc-wide_range) && parseInt(entry['start']) < (loc+wide_range)) {
       use_rows.push(entry);
@@ -135,7 +134,6 @@ function show_region(chromo, loc, well, gen_fixer) {
     .append('div')
       .attr('class', 'gen_button')
       .html(function(d) { 
-        console.log(String(gen_fixer[d][well.slice(0,2)]));
         return String(gen_fixer[d][well.slice(0,2)]); })
       .on('click', function(d) { alignments_for_gen(galign, chromo, loc, base_seq, d); });
   alignments_for_gen(galign, chromo, loc, base_seq, 70);
