@@ -294,7 +294,6 @@ function load_fitness_data() {
 function show_overlay(which_one) {
   d3.selectAll('.data_overlay')
     .style('display', function() {
-      console.log(which_one, d3.select(this).attr('id'), (d3.select(this).attr('id')==which_one+'_div') ? 'block' : 'none')
       return (d3.select(this).attr('id')==which_one+'_div') ? 'block' : 'none';
   })
 }
@@ -326,7 +325,7 @@ function sticky_highlight(mutation) {
     highlighted_mutation = null;
   } else {
     highlighted_mutation = mutation;
-    show_region(mutation['CHROM'], parseInt(mutation['POS']));
+    show_region(mutation['CHROM'], parseInt(mutation['POS']), current_well, gen_fixer);
     d3.selectAll('.allele_path')
       .filter(function(d) { return (d['CHROM']==highlighted_mutation['CHROM']) && (d['POS']==highlighted_mutation['POS']); })
       .attr('class', 'allele_path highlighted_allele').moveToFront();

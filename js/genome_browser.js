@@ -48,8 +48,9 @@ function translate(entry) {
   }
 }
 
-function show_region(chromo, loc) {
+function show_region(chromo, loc, well, gen_fixer) {
   let use_rows = [];
+  console.log('here');
   for (let entry of gene_map[chromo]) {
     if (parseInt(entry['end']) > (loc-wide_range) && parseInt(entry['start']) < (loc+wide_range)) {
       use_rows.push(entry);
@@ -128,13 +129,15 @@ function show_region(chromo, loc) {
     .html(base_seq);
   
   d3.selectAll('.gen_button').remove();
-    d3.select('#genome_gen_buttons').selectAll('.gen_button')
-      .data(sgens)
-      .enter()
-      .append('div')
-        .attr('class', 'gen_button')
-        .html(function(d) { return String(d); })
-        .on('click', function(d) { alignments_for_gen(galign, chromo, loc, base_seq, d); });
+  d3.select('#genome_gen_buttons').selectAll('.gen_button')
+    .data(sgens)
+    .enter()
+    .append('div')
+      .attr('class', 'gen_button')
+      .html(function(d) { 
+        console.log(String(gen_fixer[d][well.slice(0,2)]));
+        return String(gen_fixer[d][well.slice(0,2)]); })
+      .on('click', function(d) { alignments_for_gen(galign, chromo, loc, base_seq, d); });
   alignments_for_gen(galign, chromo, loc, base_seq, 70);
 }
 
