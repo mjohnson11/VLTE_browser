@@ -214,7 +214,7 @@ function read_gff() {
   d3.tsv("/exp_evo_browser/w303_vlte_gff_simplified.tsv")
     .then(function(data_in) {
       gff_dat = data_in;
-      d3.text("w303_vlte.fasta")
+      d3.text("/exp_evo_browser/w303_vlte.fasta")
         .then(function(fasta_in) {
           for (let s of fasta_in.split('>')) {
             if (s.length > 0) {
